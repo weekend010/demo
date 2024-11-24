@@ -1,66 +1,66 @@
-import java.util.Scanner;
-
 public class que5 {
-    // Function to solve 0/1 Knapsack using DP
-    public static int knapsack(int[] weights, int[] profits, int capacity, int n) {
-        int[][] dp = new int[n + 1][capacity + 1];
 
-        // Build the DP table
+    public static int knapsack(int[] weights, int[] profits, int n, int m) {
+        // Create a DP table with dimensions (n+1) x (m+1)
+        int[][] dp = new int[n + 1][m + 1];
+        
+        // Fill the DP table
         for (int i = 1; i <= n; i++) {
-            for (int w = 1; w <= capacity; w++) {
+            for (int w = 0; w <= m; w++) {
+                // If the current item's weight is less than or equal to the current capacity
                 if (weights[i - 1] <= w) {
+                    // Take the maximum of including or excluding the current item
                     dp[i][w] = Math.max(profits[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
                 } else {
+                    // If the current item cannot be included, exclude it
                     dp[i][w] = dp[i - 1][w];
                 }
             }
         }
 
-        // Return the maximum profit
-        return dp[n][capacity];
+        // Print the DP Table for debugging
+        System.out.println("DP Table:");
+        for (int i = 0; i <= n; i++) {
+            for (int w = 0; w <= m; w++) {
+                System.out.print(dp[i][w] + " ");
+            }
+            System.out.println();
+        }
+
+        // Now track the solution vector
+        boolean[] solution = new boolean[n];
+        int w = m;
+        
+        // Trace back from the bottom-right corner of the DP table to find which items are included
+        for (int i = n; i > 0; i--) {
+            if (dp[i][w] != dp[i - 1][w]) {  // Item i is included
+                solution[i - 1] = true;
+                w -= weights[i - 1];  // Reduce the weight by the weight of the included item
+            }
+        }
+
+        // Print the solution vector
+        System.out.print("Solution vector: ");
+        for (boolean itemIncluded : solution) {
+            System.out.print(itemIncluded ? "1 " : "0 ");
+        }
+        System.out.println();
+
+        // Return the maximum profit that can be achieved with the given weight capacity
+        return dp[n][m];
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        // Given values
+        int[] profits = {10, 10,12,18};  // Profits of the items
+        int[] weights = {2,4,6,9};    // Weights of the items
+        int n = 4;  // Number of items
+        int m = 15;  // Maximum weight capacity
 
-        // Input number of items
-        System.out.println("Enter the number of items:");
-        int n = scanner.nextInt();
+        // Solve the knapsack problem
+        int maxProfit = knapsack(weights, profits, n, m);
 
-        // Input profits
-        int[] profits = new int[n];
-        System.out.println("Enter the profits of the items:");
-        for (int i = 0; i < n; i++) {
-            profits[i] = scanner.nextInt();
-        }
-
-        // Input weights
-        int[] weights = new int[n];
-        System.out.println("Enter the weights of the items:");
-        for (int i = 0; i < n; i++) {
-            weights[i] = scanner.nextInt();
-        }
-
-        // Input capacity
-        System.out.println("Enter the capacity of the knapsack:");
-        int capacity = scanner.nextInt();
-
-        // Solve knapsack problem
-        int maxProfit = knapsack(weights, profits, capacity, n);
-
-        // Output the results
-        System.out.println("\n------------------- 0/1 Knapsack Problem -------------------");
-        System.out.println("Profits: ");
-        for (int profit : profits) {
-            System.out.print(profit + " ");
-        }
-        System.out.println("\nWeights: ");
-        for (int weight : weights) {
-            System.out.print(weight + " ");
-        }
-        System.out.println("\nCapacity: " + capacity);
-        System.out.println("\nMaximum Profit: " + maxProfit);
-
-        scanner.close();
+        // Output the result
+        System.out.println("Maximum profit for knapsack with weight capacity " + m + " is: " + maxProfit);
     }
 }
